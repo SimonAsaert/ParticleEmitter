@@ -1,0 +1,4 @@
+name: ParticlePlugin
+main: tld.sima.ParticlePlugin.Main
+version: 0.1
+
