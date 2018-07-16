@@ -6,6 +6,7 @@ import org.bukkit.conversations.StringPrompt;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Player;
 
+import net.md_5.bungee.api.ChatColor;
 import tld.sima.ParticlePlugin.Inventory.CustomInventory;
 
 public class ExtraConversation extends StringPrompt {
@@ -34,9 +35,9 @@ public class ExtraConversation extends StringPrompt {
 				batName = batName + " " + tokens[j];
 			}
 			bat.setCustomName(batName);
-			con.getForWhom().sendRawMessage("Formatted correctly");
+			con.getForWhom().sendRawMessage(ChatColor.GOLD + "Formatted correctly");
 		}else {
-			con.getForWhom().sendRawMessage("Formatted incorrectly");
+			con.getForWhom().sendRawMessage(ChatColor.GOLD + "Formatted incorrectly");
 		}
 		
 		CustomInventory i = new CustomInventory();
@@ -52,7 +53,7 @@ public class ExtraConversation extends StringPrompt {
 	
 	@Override
 	public String getPromptText(ConversationContext arg0) {
-		String string = "Input max speed";
+		String string = (ChatColor.GOLD + "Input max speed");
 		return string;
 	}
 

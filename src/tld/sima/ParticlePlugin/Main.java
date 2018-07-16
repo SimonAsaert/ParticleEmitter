@@ -1,11 +1,15 @@
 package tld.sima.ParticlePlugin;
 
+import java.util.ArrayList;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Entity;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -50,13 +54,96 @@ public class Main extends JavaPlugin{
 									delay = Integer.parseInt(tokens[2]);
 									
 									if (time % delay == 0) {
-										if (tokens.length > 5) {
+										if (tokens.length == 8) {
+											if ((tokens[1].equalsIgnoreCase("BLOCK_CRACK"))){
+												Particle particle = getParticle(tokens[1]);
+												delims = "[:]";
+												String[] materialData = tokens[7].split(delims);
+												int ID = 1;
+												byte META = 0;
+												
+												try {
+													ID = Integer.parseInt(materialData[0]);
+												}catch(NumberFormatException e) {
+													ID = 1;
+												}
+												if (materialData.length == 2) {
+													try {
+														META = Byte.parseByte(materialData[1]);
+													}catch(NumberFormatException e) {
+														META = 0;
+													}
+												}
+												
+												
+												MaterialData material = new MaterialData(ID, META);
+												
+												world.spawnParticle(particle, loc, 1, Double.parseDouble(tokens[3]), Double.parseDouble(tokens[4]), Double.parseDouble(tokens[5]), Double.parseDouble(tokens[6]), material);
+											}else if((tokens[1].equals("ITEM_CRACK"))){
+												Particle particle = getParticle(tokens[1]);
+												delims = "[:]";
+												String[] materialData = tokens[7].split(delims);
+												int ID = 1;
+												byte META = 0;
+												
+												try {
+													ID = Integer.parseInt(materialData[0]);
+												}catch(NumberFormatException e) {
+													ID = 1;
+												}
+												if (materialData.length == 2) {
+													try {
+														META = Byte.parseByte(materialData[1]);
+													}catch(NumberFormatException e) {
+														META = 0;
+													}
+												}
+												
+												ItemStack item = new ItemStack(ID, 1, (short) 0, META);
+												world.spawnParticle(particle, loc, 1, Double.parseDouble(tokens[3]), Double.parseDouble(tokens[4]), Double.parseDouble(tokens[5]), Double.parseDouble(tokens[6]), item);
+												
+											}else{
+												world.spawnParticle(getParticle(tokens[1]), loc, 1, Double.parseDouble(tokens[3]), Double.parseDouble(tokens[4]), Double.parseDouble(tokens[5]), Double.parseDouble(tokens[6]));
+											}
+										}else if (tokens.length > 5) {
+											
+											
+											
+											ArrayList<String> newName = new ArrayList<String>();
+											
+											newName.add(tokens[0]);
+											newName.add(tokens[1]);
+											newName.add(tokens[2]);
+											newName.add(tokens[3]);
+											newName.add(tokens[4]);
+											newName.add(tokens[5]);
+											newName.add(tokens[6]);
+											newName.add("1");
+											String batName = newName.get(0);
+											
+											for (int j = 1; j < newName.size(); j++) {
+												batName = batName + " " + newName.get(j);
+											}
+											bat.setCustomName(batName);
 											world.spawnParticle(getParticle(tokens[1]), loc, 1, Double.parseDouble(tokens[3]), Double.parseDouble(tokens[4]), Double.parseDouble(tokens[5]), Double.parseDouble(tokens[6]));
 										}else {
+											ArrayList<String> newName = new ArrayList<String>();
+											
+											newName.add(tokens[0]);
+											newName.add(tokens[1]);
+											newName.add(tokens[2]);
+											newName.add("0");
+											newName.add("0");
+											newName.add("0");
+											newName.add("0");
+											newName.add("1");
+											String batName = newName.get(0);
+											for (int j = 1; j < newName.size(); j++) {
+												batName = batName + " " + newName.get(j);
+											}
+											bat.setCustomName(batName);
 											world.spawnParticle(getParticle(tokens[1]), loc, 1);
 										}
-										
-										
 									}
 								}
 							}

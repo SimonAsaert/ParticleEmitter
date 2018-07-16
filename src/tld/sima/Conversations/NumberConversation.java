@@ -26,7 +26,7 @@ public class NumberConversation extends StringPrompt{
 			int count = Integer.parseInt(message);
 			if (count < 1) {
 				count = 1;
-				player.sendMessage("Count too low. Resetting to 1");
+				con.getForWhom().sendRawMessage(ChatColor.GOLD + "Count too low. Resetting to 1");
 			}
 			String name = bat.getCustomName();
 
@@ -42,7 +42,7 @@ public class NumberConversation extends StringPrompt{
 			
 			bat.setCustomName(batName);
 			
-			player.sendMessage("Set Delay between each particle at " + count + " ticks");
+			con.getForWhom().sendRawMessage(ChatColor.GOLD + "Set Delay between each particle at " + ChatColor.WHITE + count + ChatColor.GOLD + " ticks");
 			
 			CustomInventory i = new CustomInventory();
 			i.mainInventoryMenu(player, bat);

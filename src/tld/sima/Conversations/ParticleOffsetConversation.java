@@ -33,7 +33,7 @@ public class ParticleOffsetConversation extends StringPrompt {
 			flag = false;
 		}
 		if (flag == true) {
-			player.sendMessage(ChatColor.GOLD + "Formatted correctly");
+			con.getForWhom().sendRawMessage(ChatColor.GOLD + "Formatted correctly");
 			String[] name = bat.getCustomName().split(delims);
 			for(int j = 0; j < tokens.length; j++) {
 				name[j + 3] = tokens[j];

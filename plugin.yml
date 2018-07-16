@@ -1,7 +1,11 @@
 name: ParticlePlugin
 main: tld.sima.ParticlePlugin.Main
 version: 0.1
-
+permissions:
+  interact:
+    description: Allow interaction with particle emitters.
+    permission: ParticlePlugin.interact
+    permission-message:  You don't have the ParticlePlugin.interact permission.
 commands:
   particle:
     description: Summons particle spawner

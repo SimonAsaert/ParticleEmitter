@@ -25,6 +25,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import net.md_5.bungee.api.ChatColor;
 import tld.sima.Conversations.ExtraConversation;
+import tld.sima.Conversations.MaterialConversation;
 import tld.sima.Conversations.NumberConversation;
 import tld.sima.Conversations.ParticleOffsetConversation;
 import tld.sima.Conversations.PosConversation;
@@ -66,11 +67,12 @@ public class EventClass implements Listener {
 			String[] tokens = name.split(delims);
 			
 			if (tokens[0].equalsIgnoreCase("particle")) {
-				event.setCancelled(true);
-				bmp.addToMap(player.toString(),bat);
-
-				CustomInventory i = new CustomInventory();
-				i.mainInventoryMenu(player, bat);
+				if (player.hasPermission("ParticlePlugin.interact"))
+					event.setCancelled(true);
+					bmp.addToMap(player.toString(),bat);
+	
+					CustomInventory i = new CustomInventory();
+					i.mainInventoryMenu(player, bat);
 			}
 		}
 	}
@@ -134,6 +136,13 @@ public class EventClass implements Listener {
 				ExtraConversation extconv = new ExtraConversation();
 				extconv.inputData(player, bat);
 				Conversation conv = cf.withFirstPrompt(extconv).withLocalEcho(true).buildConversation(player);
+				conv.begin();
+			}else if(item.getItemMeta().getDisplayName().equals(ChatColor.WHITE + "Material Data")) {
+				player.closeInventory();
+				ConversationFactory cf = new ConversationFactory(plugin);
+				MaterialConversation matconv = new MaterialConversation();
+				matconv.inputData(player, bat);
+				Conversation conv = cf.withFirstPrompt(matconv).withLocalEcho(true).buildConversation(player);
 				conv.begin();
 			}
 			else {
@@ -269,38 +278,39 @@ public class EventClass implements Listener {
 	public void onRightClick(PlayerInteractEvent event) {
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			Player player = event.getPlayer();
-			if((!delay.containsKey(player.toString()))){
-				ItemStack tool = new ItemStack(Material.STICK);
-				ItemMeta toolM = tool.getItemMeta();
-				toolM.setDisplayName(ChatColor.GREEN + "Particle Summoner");
-				
-				ArrayList<String> toolL = new ArrayList<String>();
-				toolL.add(ChatColor.GRAY + "" + ChatColor.ITALIC + "Summons Emitter");
-				
-				toolM.setLore(toolL);
-				toolM.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-				
-				tool.setItemMeta(toolM);
-				
-				if(player.getInventory().getItemInMainHand().isSimilar(tool)) {
-					delay.put(player.toString(), true);
-					event.setCancelled(true);
+			if (player.hasPermission("ParticlePlugin.particle"));
+				if((!delay.containsKey(player.toString()))){
+					ItemStack tool = new ItemStack(Material.STICK);
+					ItemMeta toolM = tool.getItemMeta();
+					toolM.setDisplayName(ChatColor.GREEN + "Particle Summoner");
 					
-					Location loc = event.getClickedBlock().getLocation();
-					loc.add(0.5,1,0.5);
+					ArrayList<String> toolL = new ArrayList<String>();
+					toolL.add(ChatColor.GRAY + "" + ChatColor.ITALIC + "Summons Emitter");
 					
-					ParticleEmitter particle = new ParticleEmitter();
-					particle.createEntity(player, loc);
+					toolM.setLore(toolL);
+					toolM.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 					
+					tool.setItemMeta(toolM);
 					
-					new BukkitRunnable() {
-						@Override
-						public void run() {
-							delay.remove(player.toString());
-						}
-					}.runTaskLater(plugin, 5);
+					if(player.getInventory().getItemInMainHand().isSimilar(tool)) {
+						delay.put(player.toString(), true);
+						event.setCancelled(true);
+						
+						Location loc = event.getClickedBlock().getLocation();
+						loc.add(0.5,1,0.5);
+						
+						ParticleEmitter particle = new ParticleEmitter();
+						particle.createEntity(player, loc);
+						
+						
+						new BukkitRunnable() {
+							@Override
+							public void run() {
+								delay.remove(player.toString());
+							}
+						}.runTaskLater(plugin, 5);
+					}
 				}
-			}
 		}
 	}
 	

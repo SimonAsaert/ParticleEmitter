@@ -65,13 +65,18 @@ public class CustomInventory implements Listener {
 			extra = createItem(extra, ChatColor.WHITE + "Extra data", ChatColor.GRAY + "" + ChatColor.ITALIC + "Sets extra data, usually reserved for speed.");
 		}
 		
-		
 		i.setItem(26, delete);
 		i.setItem(10, type);
 		i.setItem(11, number);
 		i.setItem(12, offset);
 		i.setItem(13, extra);
 		i.setItem(16, position);
+		
+		if (( (tokens[1].equalsIgnoreCase("BLOCK_CRACK")) || (tokens[1].equalsIgnoreCase("ITEM_CRACK")) ) && (tokens.length == 8)) {
+			ItemStack material = new ItemStack(Material.EMERALD_BLOCK, 1);
+			material = createItem(material, ChatColor.WHITE + "Material Data", ChatColor.GRAY + "" + ChatColor.ITALIC + "For Block Crack particle, sets what block type of particle it is. Currently: " + ChatColor.WHITE + tokens[7]);
+			i.setItem(14, material);
+		}
 		
 		player.openInventory(i);
 
