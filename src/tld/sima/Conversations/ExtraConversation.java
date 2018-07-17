@@ -1,12 +1,12 @@
 package tld.sima.Conversations;
 
+import org.bukkit.ChatColor;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.conversations.StringPrompt;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Player;
 
-import net.md_5.bungee.api.ChatColor;
 import tld.sima.ParticlePlugin.Inventory.CustomInventory;
 
 public class ExtraConversation extends StringPrompt {
@@ -17,6 +17,7 @@ public class ExtraConversation extends StringPrompt {
 	@Override
 	public Prompt acceptInput(ConversationContext con, String message) {
 		boolean flag = true;
+		
 		try {
 			Double.parseDouble(message);
 		}catch(NumberFormatException e) {
@@ -24,10 +25,20 @@ public class ExtraConversation extends StringPrompt {
 		}
 		
 		if (flag == true) {
+			double count = Double.parseDouble(message);
+
 			String delims = "[ ]";
 			String[] tokens = bat.getCustomName().split(delims);
-			
-			tokens[6] = message;
+
+			if(count > 10) {
+				con.getForWhom().sendRawMessage(ChatColor.GOLD + "Count too high, resetting to 10");
+				tokens[6] = "10";
+			}else if(count < 0){
+				con.getForWhom().sendRawMessage(ChatColor.GOLD + "Count too low, resetting to 0");
+				tokens[6] = "0";
+			}else {
+				tokens[6] = message;
+			}
 			
 			String batName = tokens[0];
 			

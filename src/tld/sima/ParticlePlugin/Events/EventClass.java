@@ -3,6 +3,7 @@ package tld.sima.ParticlePlugin.Events;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.conversations.Conversation;
@@ -23,7 +24,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import net.md_5.bungee.api.ChatColor;
+import com.intellectualcrafters.plot.api.PlotAPI;
+
 import tld.sima.Conversations.ExtraConversation;
 import tld.sima.Conversations.MaterialConversation;
 import tld.sima.Conversations.NumberConversation;
@@ -36,6 +38,7 @@ import tld.sima.ParticlePlugin.Inventory.CustomInventory;
 
 public class EventClass implements Listener {
 	private Plugin plugin = Main.getPlugin(Main.class);
+	private PlotAPI api = Main.api;
 
 
 	@EventHandler
@@ -67,12 +70,29 @@ public class EventClass implements Listener {
 			String[] tokens = name.split(delims);
 			
 			if (tokens[0].equalsIgnoreCase("particle")) {
-				if (player.hasPermission("ParticlePlugin.interact"))
-					event.setCancelled(true);
-					bmp.addToMap(player.toString(),bat);
-	
-					CustomInventory i = new CustomInventory();
-					i.mainInventoryMenu(player, bat);
+				if (player.hasPermission("ParticlePlugin.interact")) {
+
+					boolean flag = true;
+					try{
+						if(Main.PlotFlag == true) {
+							if (api.getPlot(player).isAdded(player.getUniqueId())) {
+								flag = true;
+							}else {
+								flag = false;
+							}
+						}
+					}catch(NullPointerException e) {
+						flag = true;
+					}
+					
+					if (flag == true) {
+						event.setCancelled(true);
+						bmp.addToMap(player.toString(),bat);
+		
+						CustomInventory i = new CustomInventory();
+						i.mainInventoryMenu(player, bat);
+					}
+				}
 			}
 		}
 	}
@@ -85,9 +105,8 @@ public class EventClass implements Listener {
 
 		Bat bat = bmp.getEntity(player.toString());
 
-		Inventory open = event.getClickedInventory();
+		Inventory open = event.getInventory();
 		ItemStack item = event.getCurrentItem();
-		
 		
 		if(open == null){
 			return;
@@ -278,7 +297,7 @@ public class EventClass implements Listener {
 	public void onRightClick(PlayerInteractEvent event) {
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			Player player = event.getPlayer();
-			if (player.hasPermission("ParticlePlugin.particle"));
+			if (player.hasPermission("ParticlePlugin.particle")) {
 				if((!delay.containsKey(player.toString()))){
 					ItemStack tool = new ItemStack(Material.STICK);
 					ItemMeta toolM = tool.getItemMeta();
@@ -293,24 +312,39 @@ public class EventClass implements Listener {
 					tool.setItemMeta(toolM);
 					
 					if(player.getInventory().getItemInMainHand().isSimilar(tool)) {
-						delay.put(player.toString(), true);
-						event.setCancelled(true);
-						
-						Location loc = event.getClickedBlock().getLocation();
-						loc.add(0.5,1,0.5);
-						
-						ParticleEmitter particle = new ParticleEmitter();
-						particle.createEntity(player, loc);
-						
-						
-						new BukkitRunnable() {
-							@Override
-							public void run() {
-								delay.remove(player.toString());
+						boolean flag = true;
+						try{
+							if(Main.PlotFlag == true) {
+								if (api.getPlot(player).isAdded(player.getUniqueId())) {
+									flag = true;
+								}else {
+									flag = false;
+								}
 							}
-						}.runTaskLater(plugin, 5);
+						}catch(NullPointerException e) {
+							flag = true;
+						}
+						if (flag == true) {
+							delay.put(player.toString(), true);
+							event.setCancelled(true);
+							
+							Location loc = event.getClickedBlock().getLocation();
+							loc.add(0.5,1,0.5);
+							
+							ParticleEmitter particle = new ParticleEmitter();
+							particle.createEntity(player, loc);
+							
+							
+							new BukkitRunnable() {
+								@Override
+								public void run() {
+									delay.remove(player.toString());
+								}
+							}.runTaskLater(plugin, 5);
+						}
 					}
 				}
+			}
 		}
 	}
 	

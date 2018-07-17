@@ -1,5 +1,6 @@
 package tld.sima.Conversations;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
@@ -7,7 +8,6 @@ import org.bukkit.conversations.StringPrompt;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Player;
 
-import net.md_5.bungee.api.ChatColor;
 import tld.sima.ParticlePlugin.Inventory.CustomInventory;
 
 public class PosConversation extends StringPrompt {

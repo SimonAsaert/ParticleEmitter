@@ -3,6 +3,7 @@ package tld.sima.ParticlePlugin;
 import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
@@ -13,141 +14,163 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import net.md_5.bungee.api.ChatColor;
+import com.intellectualcrafters.plot.api.PlotAPI;
+
 import tld.sima.Command.Commands;
 import tld.sima.ParticlePlugin.Events.EventClass;
 
 public class Main extends JavaPlugin{
 
 	private Commands commands = new Commands();
-
+	public static PlotAPI api;
+	public static boolean PlotFlag;
+	
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onEnable() {
 		getCommand(commands.cmd1).setExecutor(commands);
+
+		if ((getServer().getPluginManager().getPlugin("PlotSquared") != null) && !(getServer().getPluginManager().getPlugin("PlotSquared").isEnabled()) ) {
+			getServer().getConsoleSender().sendMessage(ChatColor.RED + "PlotSquared doesn't appear to be running.");
+			PlotFlag = false;
+		}else {
+			PlotFlag = true;
+			api = new PlotAPI();
+		}
+		
 		getServer().getPluginManager().registerEvents(new EventClass(), this);
 
-		getServer().getConsoleSender().sendMessage(ChatColor.BLUE + "Particle Plugin has been enabled\r\n");
+		getServer().getConsoleSender().sendMessage(ChatColor.BLUE + "Particle Plugin has been enabled");
+		
 		Bukkit.getScheduler().scheduleAsyncRepeatingTask(this,
 		new BukkitRunnable() {
 			@Override
 			public void run() {
 				for (World world : Bukkit.getServer().getWorlds()) {
 					Long time = world.getFullTime();
-					for (Entity entity : world.getEntities()) {
-						if(entity instanceof Bat) {
-							Bat bat = (Bat)entity;
-							if(bat.getCustomName() != null) {
-								String name = bat.getCustomName();
+					try {
+						for (Entity entity : world.getEntities()) {
+							if(entity instanceof Bat) {
+								Bat bat = (Bat)entity;
+								if(bat.getCustomName() != null) {
+									String name = bat.getCustomName();
 
-								String delims = "[ ]";
-								String[] tokens = name.split(delims);
+									String delims = "[ ]";
+									String[] tokens = name.split(delims);
 
-								if (tokens[0].equalsIgnoreCase("particle")) {
-									Location loc = bat.getLocation();
-									int delay = 20;
-									try {
-										Integer.parseInt(tokens[2]);
-									}catch(NumberFormatException e){
-										continue;
-									}
-									delay = Integer.parseInt(tokens[2]);
-									
-									if (time % delay == 0) {
-										if (tokens.length == 8) {
-											if ((tokens[1].equalsIgnoreCase("BLOCK_CRACK"))){
-												Particle particle = getParticle(tokens[1]);
-												delims = "[:]";
-												String[] materialData = tokens[7].split(delims);
-												int ID = 1;
-												byte META = 0;
-												
-												try {
-													ID = Integer.parseInt(materialData[0]);
-												}catch(NumberFormatException e) {
-													ID = 1;
-												}
-												if (materialData.length == 2) {
-													try {
-														META = Byte.parseByte(materialData[1]);
-													}catch(NumberFormatException e) {
-														META = 0;
+									if (tokens[0].equalsIgnoreCase("particle")) {
+										Location loc = bat.getLocation();
+										int delay = 20;
+										try {
+											Integer.parseInt(tokens[2]);
+										}catch(NumberFormatException e){
+											continue;
+										}
+										delay = Integer.parseInt(tokens[2]);
+
+										if (time % delay == 0) {
+											if (tokens.length == 8) {
+												if(Double.parseDouble(tokens[6]) > 10) {
+													tokens[6] = "10";
+													String batName = tokens[0];
+													for(int j=1; j < tokens.length ; j++) {
+														batName = batName + " " + tokens[j];
 													}
-												}
-												
-												
-												MaterialData material = new MaterialData(ID, META);
-												
-												world.spawnParticle(particle, loc, 1, Double.parseDouble(tokens[3]), Double.parseDouble(tokens[4]), Double.parseDouble(tokens[5]), Double.parseDouble(tokens[6]), material);
-											}else if((tokens[1].equals("ITEM_CRACK"))){
-												Particle particle = getParticle(tokens[1]);
-												delims = "[:]";
-												String[] materialData = tokens[7].split(delims);
-												int ID = 1;
-												byte META = 0;
-												
-												try {
-													ID = Integer.parseInt(materialData[0]);
-												}catch(NumberFormatException e) {
-													ID = 1;
-												}
-												if (materialData.length == 2) {
-													try {
-														META = Byte.parseByte(materialData[1]);
-													}catch(NumberFormatException e) {
-														META = 0;
+													bat.setCustomName(batName);
+												}else if (Double.parseDouble(tokens[6]) < 0) {
+													tokens[6] = "0";
+													String batName = tokens[0];
+
+													for(int j=1; j < tokens.length ; j++) {
+														batName = batName + " " + tokens[j];
 													}
+													bat.setCustomName(batName);
 												}
-												
-												ItemStack item = new ItemStack(ID, 1, (short) 0, META);
-												world.spawnParticle(particle, loc, 1, Double.parseDouble(tokens[3]), Double.parseDouble(tokens[4]), Double.parseDouble(tokens[5]), Double.parseDouble(tokens[6]), item);
-												
-											}else{
+												if ((tokens[1].equalsIgnoreCase("BLOCK_CRACK"))){
+													Particle particle = getParticle(tokens[1]);
+													delims = "[:]";
+													String[] materialData = tokens[7].split(delims);
+													int ID = 1;
+													byte META = 0;
+													try {
+														ID = Integer.parseInt(materialData[0]);
+													}catch(NumberFormatException e) {
+														ID = 1;
+													}
+													if (materialData.length == 2) {
+														try {
+															META = Byte.parseByte(materialData[1]);
+														}catch(NumberFormatException e) {
+															META = 0;
+														}
+													}
+													MaterialData material = new MaterialData(ID, META);
+													world.spawnParticle(particle, loc, 1, Double.parseDouble(tokens[3]), Double.parseDouble(tokens[4]), Double.parseDouble(tokens[5]), Double.parseDouble(tokens[6]), material);
+												}else if((tokens[1].equals("ITEM_CRACK"))){
+													Particle particle = getParticle(tokens[1]);
+													delims = "[:]";
+													String[] materialData = tokens[7].split(delims);
+													int ID = 1;
+													byte META = 0;
+													try {
+														ID = Integer.parseInt(materialData[0]);
+													}catch(NumberFormatException e) {
+														ID = 1;
+													}
+													if (materialData.length == 2) {
+														try {
+															META = Byte.parseByte(materialData[1]);
+														}catch(NumberFormatException e) {
+															META = 0;
+														}
+													}
+													
+													ItemStack item = new ItemStack(ID, 1, (short) 0, META);
+													world.spawnParticle(particle, loc, 1, Double.parseDouble(tokens[3]), Double.parseDouble(tokens[4]), Double.parseDouble(tokens[5]), Double.parseDouble(tokens[6]), item);
+													
+												}else{
+													world.spawnParticle(getParticle(tokens[1]), loc, 1, Double.parseDouble(tokens[3]), Double.parseDouble(tokens[4]), Double.parseDouble(tokens[5]), Double.parseDouble(tokens[6]));
+												}
+											}else if (tokens.length > 5) {
+												ArrayList<String> newName = new ArrayList<String>();
+												newName.add(tokens[0]);
+												newName.add(tokens[1]);
+												newName.add(tokens[2]);
+												newName.add(tokens[3]);
+												newName.add(tokens[4]);
+												newName.add(tokens[5]);
+												newName.add(tokens[6]);
+												newName.add("1");
+												String batName = newName.get(0);
+												for (int j = 1; j < newName.size(); j++) {
+													batName = batName + " " + newName.get(j);
+												}
+												bat.setCustomName(batName);
 												world.spawnParticle(getParticle(tokens[1]), loc, 1, Double.parseDouble(tokens[3]), Double.parseDouble(tokens[4]), Double.parseDouble(tokens[5]), Double.parseDouble(tokens[6]));
+											}else {
+												ArrayList<String> newName = new ArrayList<String>();
+												newName.add(tokens[0]);
+												newName.add(tokens[1]);
+												newName.add(tokens[2]);
+												newName.add("0");
+												newName.add("0");
+												newName.add("0");
+												newName.add("0");
+												newName.add("1");
+												String batName = newName.get(0);
+												for (int j = 1; j < newName.size(); j++) {
+													batName = batName + " " + newName.get(j);
+												}
+												bat.setCustomName(batName);
+												world.spawnParticle(getParticle(tokens[1]), loc, 1);
 											}
-										}else if (tokens.length > 5) {
-											
-											
-											
-											ArrayList<String> newName = new ArrayList<String>();
-											
-											newName.add(tokens[0]);
-											newName.add(tokens[1]);
-											newName.add(tokens[2]);
-											newName.add(tokens[3]);
-											newName.add(tokens[4]);
-											newName.add(tokens[5]);
-											newName.add(tokens[6]);
-											newName.add("1");
-											String batName = newName.get(0);
-											
-											for (int j = 1; j < newName.size(); j++) {
-												batName = batName + " " + newName.get(j);
-											}
-											bat.setCustomName(batName);
-											world.spawnParticle(getParticle(tokens[1]), loc, 1, Double.parseDouble(tokens[3]), Double.parseDouble(tokens[4]), Double.parseDouble(tokens[5]), Double.parseDouble(tokens[6]));
-										}else {
-											ArrayList<String> newName = new ArrayList<String>();
-											
-											newName.add(tokens[0]);
-											newName.add(tokens[1]);
-											newName.add(tokens[2]);
-											newName.add("0");
-											newName.add("0");
-											newName.add("0");
-											newName.add("0");
-											newName.add("1");
-											String batName = newName.get(0);
-											for (int j = 1; j < newName.size(); j++) {
-												batName = batName + " " + newName.get(j);
-											}
-											bat.setCustomName(batName);
-											world.spawnParticle(getParticle(tokens[1]), loc, 1);
 										}
 									}
 								}
 							}
 						}
+					}catch(Exception e) {
+						// DoNothing
 					}
 				}
 			}
